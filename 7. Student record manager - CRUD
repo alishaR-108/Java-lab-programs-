@@ -1,0 +1,150 @@
+import java.io.*;
+import java.util.*;
+
+public class StudentCSV {
+
+    static final String FILE = "Students.csv";
+    static final String HEADER =
+        "studentId,name,branch,marks1,marks2,marks3,marks4,marks5,percentage";
+
+    // ── CREATE ──────────────────────────────────────────────────────────
+    static void createFile() {
+        try (PrintWriter pw = new PrintWriter(new FileWriter(FILE))) {
+            pw.println(HEADER);
+            pw.println("1,Alice,AIML,88,76,92,0,0,0.0");
+            pw.println("2,Bob,CS,70,85,60,0,0,0.0");
+            System.out.println("[CREATE] File created with header + 2 rows.");
+        } catch (IOException e) {
+            System.out.println("[IOException - CREATE] " + e.getMessage());
+        }
+    }
+
+    // ── READ ────────────────────────────────────────────────────────────
+    static List<String[]> readAll() {
+        List<String[]> rows = new ArrayList<>();
+        try (BufferedReader br = new BufferedReader(new FileReader(FILE))) {
+            String line;
+            while ((line = br.readLine()) != null)
+                rows.add(line.split(","));
+        } catch (IOException e) {
+            System.out.println("[IOException - READ] " + e.getMessage());
+        }
+        return rows;
+    }
+
+    static void printTable(String label) {
+        System.out.println("\n[READ] " + label);
+        List<String[]> rows = readAll();
+        for (String[] r : rows)
+            System.out.println(String.join(" | ", r));
+    }
+
+    // ── ADD 3 ROWS (marks4 & marks5 = 0) ────────────────────────────────
+    static void addRows() {
+        try (PrintWriter pw = new PrintWriter(new FileWriter(FILE, true))) {
+            pw.println("3,Carol,AIML,95,88,91,0,0,0.0");
+            pw.println("4,Dave,ECE,55,60,72,0,0,0.0");
+            pw.println("5,Eve,Mech,80,78,85,0,0,0.0");
+            System.out.println("\n[CREATE] 3 rows added (marks4 & marks5 = 0).");
+        } catch (IOException e) {
+            System.out.println("[IOException - ADD ROWS] " + e.getMessage());
+        }
+    }
+
+    // ── UPDATE marks4 & marks5 ───────────────────────────────────────────
+    static void updateMarks() {
+        // marks4, marks5 for each studentId
+        Map<String,int[]> updates = new LinkedHashMap<>();
+        updates.put("1", new int[]{84, 90});
+        updates.put("2", new int[]{78, 65});
+        updates.put("3", new int[]{93, 87});
+        updates.put("4", new int[]{68, 74});
+        updates.put("5", new int[]{82, 79});
+
+        List<String[]> rows = readAll();
+        try (PrintWriter pw = new PrintWriter(new FileWriter(FILE))) {
+            for (String[] r : rows) {
+                if (updates.containsKey(r[0])) {
+                    r[6] = String.valueOf(updates.get(r[0])[0]);
+                    r[7] = String.valueOf(updates.get(r[0])[1]);
+                }
+                pw.println(String.join(",", r));
+            }
+            System.out.println("\n[UPDATE] marks4 & marks5 updated for all students.");
+        } catch (IOException e) {
+            System.out.println("[IOException - UPDATE MARKS] " + e.getMessage());
+        }
+    }
+
+    // ── CALCULATE & UPDATE PERCENTAGE ────────────────────────────────────
+    static double calcPercentage(String[] r) {
+        int total = 0;
+        for (int i = 3; i <= 7; i++) total += Integer.parseInt(r[i].trim());
+        return total / 5.0;
+    }
+
+    static void updatePercentage() {
+        List<String[]> rows = readAll();
+        try (PrintWriter pw = new PrintWriter(new FileWriter(FILE))) {
+            for (int i = 0; i < rows.size(); i++) {
+                String[] r = rows.get(i);
+                if (i > 0)   // skip header
+                    r[8] = String.format("%.2f", calcPercentage(r));
+                pw.println(String.join(",", r));
+            }
+            System.out.println("\n[UPDATE] Percentage calculated & updated for all students.");
+        } catch (IOException e) {
+            System.out.println("[IOException - PERCENTAGE] " + e.getMessage());
+        }
+    }
+
+    // ── DELETE a row ─────────────────────────────────────────────────────
+    static void deleteRow(String studentId) {
+        List<String[]> rows = readAll();
+        try (PrintWriter pw = new PrintWriter(new FileWriter(FILE))) {
+            for (String[] r : rows) {
+                if (!r[0].trim().equals(studentId))
+                    pw.println(String.join(",", r));
+            }
+            System.out.println("\n[DELETE] Row with studentId=" + studentId + " deleted.");
+        } catch (IOException e) {
+            System.out.println("[IOException - DELETE] " + e.getMessage());
+        }
+    }
+
+    // ── DEMONSTRATE IOException ───────────────────────────────────────────
+    static void showException() {
+        System.out.println("\n[EXCEPTION DEMO] Trying to read a non-existent file...");
+        try (BufferedReader br = new BufferedReader(new FileReader("ghost.csv"))) {
+            br.readLine();
+        } catch (IOException e) {
+            System.out.println("[IOException caught] " + e.getMessage());
+        }
+    }
+
+    // ── MAIN ─────────────────────────────────────────────────────────────
+    public static void main(String[] args) {
+        // 1. Create file with 2 rows
+        createFile();
+        printTable("After CREATE (2 rows):");
+
+        // 2. Add 3 more rows
+        addRows();
+        printTable("After ADD (5 rows, marks4 & marks5 = 0):");
+
+        // 3. Update marks4 & marks5
+        updateMarks();
+        printTable("After UPDATE marks:");
+
+        // 4. Calculate & update percentage
+        updatePercentage();
+        printTable("After UPDATE percentage:");
+
+        // 5. Delete a row
+        deleteRow("3");
+        printTable("After DELETE studentId=3:");
+
+        // 6. Show IOException
+        showException();
+    }
+}
