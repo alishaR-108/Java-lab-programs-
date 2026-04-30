@@ -1,1 +1,114 @@
+public class Vehicle {
+    public String brandname;
+    public String modelname;
+    public String color;
+    public double price;
+    public boolean auto;
+    public int seats;
+    public float enginepower;
+    private int nofcylinders;
+    private String mfgcode;
+    public String fuelType;
+
+    public String getMfgcode() {
+        return mfgcode;
+    }
+
+    public void setMfgcode(String aCode) {
+        mfgcode = aCode;
+    }
+
+    public int getCyl() {
+        return nofcylinders;
+    }
+
+    public void setCyl(int cyl) {
+        nofcylinders = cyl;
+    }
+
+    public Vehicle() {
+        brandname = "Honda";
+        modelname = "accord";
+        price = 340000.55;
+        color = "Blue";
+        mfgcode = "HBCL34";
+        auto = false;
+        seats = 4;
+        nofcylinders = 4;
+        enginepower = 1.5f;
+        fuelType = "Petrol";
+    }
+
+    public Vehicle(String bName, String mName, String c, double p, boolean auto) {
+        brandname = bName;
+        modelname = mName;
+        color = c;
+        price = p;
+        this.auto = auto;
+    }
+
+    public Vehicle(String a, double b, boolean a1) {
+        // constructor
+    }
+
+    public void start() {
+        System.out.println("Vehicle started!");
+    }
+
+    public void drive(int initSpeed) {
+        System.out.println("I have started with an initial spee of :" + initSpeed);
+    }
+
+    public void stop() {
+        System.out.println("Vehicle stopped!");
+    }
+
+    public float calculateMileage(float dist, float fuel) {
+        return dist / fuel;
+    }
+
+    public boolean gearType() {
+        return auto;
+    }
+
+    public static float changeSpeed(float curSpeed, float newSpeed) {
+        curSpeed = newSpeed;
+        return curSpeed;
+    }
+
+    public double calcTripMileage(float dist, float fuelUsed) {
+        double mileage = dist / fuelUsed;
+        return mileage;
+    }
+}
+public class MainVehicle {
+    public static void main(String[] args) {
+        Vehicle v1 = new Vehicle();
+
+        Vehicle v2 = new Vehicle(bName: "Toyota", mName: "Camry", c: "White",
+                                  p: 450000.75, auto: false);
+
+        Vehicle v3 = new Vehicle(c: "Black", p: 300000.00, a: true);
+
+        Vehicle v4 = v1;
+        v4.color = "Red";
+        v4.price = 69420.67;
+
+        Vehicle[] myVehicles = new Vehicle[]{v1, v2, v3, v4};
+        for (Vehicle v : myVehicles) {
+            printVehicleDetails(v);
+            v.start();
+            v.drive(initSpeed: 10);
+            v.changeSpeed(curSpeed: 10, newSpeed: 30);
+            v.calcTripMileage(dist: 120, fuelUsed: 20);
+            v.stop();
+        }
+    }
+    public static void printVehicleDetails(Vehicle v) {
+        System.out.println("==========Vehicle Details==========");
+        System.out.println("ModelName\tBranName\tColor\t\tPrice\tAutomatic");
+        System.out.println(v.modelname + "\t\t" + v.brandname + "\t\t" +
+                           v.color + "\t\t" + v.price + " " + v.auto);
+    }
+}
 
