@@ -1,0 +1,126 @@
+import java.util.*;
+
+// Abstract Base Class
+abstract class Employee {
+    protected String name;
+    protected String panNo;
+    protected String joiningDate;
+    protected String designation;
+    protected int empId;
+
+    public Employee(int empId, String name, String panNo,
+                    String joiningDate, String designation) {
+        this.empId = empId;
+        this.name = name;
+        this.panNo = panNo;
+        this.joiningDate = joiningDate;
+        this.designation = designation;
+    }
+
+    public abstract double calcCTC();
+
+    public void display() {
+        System.out.println("Emp ID: " + empId + ", Name: " + name);
+        System.out.println("PAN: " + panNo + ", Joined: " + joiningDate);
+        System.out.println("Designation: " + designation);
+        System.out.printf("CTC: %.2f%n", calcCTC());
+    }
+}
+
+// FullTimeEmployee Class
+class FullTimeEmployee extends Employee {
+    protected double baseSalary;
+    protected double perfBonus;
+
+    public FullTimeEmployee(int empId, String name, String panNo,
+                            String joiningDate, String designation,
+                            double baseSalary, double perfBonus) {
+        super(empId, name, panNo, joiningDate, designation);
+        this.baseSalary = baseSalary;
+        this.perfBonus = perfBonus;
+    }
+
+    @Override
+    public double calcCTC() {
+        if (designation.equalsIgnoreCase("SWE")) {
+            return baseSalary + perfBonus;
+        } else if (designation.equalsIgnoreCase("HR")) {
+            double hiringCommission = baseSalary * 0.10;
+            return baseSalary + hiringCommission;
+        }
+        return baseSalary;
+    }
+}
+
+// Manager Class (child of FullTimeEmployee)
+class Manager extends FullTimeEmployee {
+    private double ta;
+    private double eduAllowance;
+
+    public Manager(int empId, String name, String panNo,
+                   String joiningDate, double baseSalary,
+                   double perfBonus, double ta, double eduAllowance) {
+        super(empId, name, panNo, joiningDate, "Manager",
+              baseSalary, perfBonus);
+        this.ta = ta;
+        this.eduAllowance = eduAllowance;
+    }
+
+    @Override
+    public double calcCTC() {
+        return baseSalary + perfBonus + ta + eduAllowance;
+    }
+}
+
+// ContractEmployee Class
+class ContractEmployee extends Employee {
+    private int noOfHrs;
+    private double hourlyRate;
+
+    public ContractEmployee(int empId, String name, String panNo,
+                            String joiningDate, String designation,
+                            int noOfHrs, double hourlyRate) {
+        super(empId, name, panNo, joiningDate, designation);
+        this.noOfHrs = noOfHrs;
+        this.hourlyRate = hourlyRate;
+    }
+
+    @Override
+    public double calcCTC() {
+        return noOfHrs * hourlyRate;
+    }
+}
+
+// Main Class
+public class EmployeeApp {
+    public static void main(String[] args) {
+        ArrayList<Employee> employees = new ArrayList<>();
+
+        // Create FullTimeEmployees
+        FullTimeEmployee e1 = new FullTimeEmployee(101, "Alice", "ABCDE1234F",
+                "2022-06-01", "SWE", 80000, 15000);
+        FullTimeEmployee e2 = new FullTimeEmployee(102, "Bob", "PQRST5678G",
+                "2021-03-15", "HR", 60000, 0);
+
+        // Create Manager
+        Manager m1 = new Manager(201, "Carol", "XYZAB9012H",
+                "2019-01-10", 120000, 25000, 10000, 5000);
+
+        // Create ContractEmployee
+        ContractEmployee c1 = new ContractEmployee(301, "Dave", "LMNOP3456I",
+                "2023-09-01", "Contractor", 160, 500);
+
+        // Add to list
+        employees.add(e1);
+        employees.add(e2);
+        employees.add(m1);
+        employees.add(c1);
+
+        // Display consolidated information
+        System.out.println("--- Employee CTC Summary ---");
+        for (Employee e : employees) {
+            e.display();
+            System.out.println("----------------------------");
+        }
+    }
+}
