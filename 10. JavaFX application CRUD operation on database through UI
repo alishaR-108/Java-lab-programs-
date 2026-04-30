@@ -1,0 +1,186 @@
+import javafx.application.Application;
+import javafx.geometry.Insets;
+import javafx.scene.Scene;
+import javafx.scene.control.*;
+import javafx.scene.layout.*;
+import javafx.stage.Stage;
+import java.sql.*;
+public class RestaurantApp extends Application {
+    static final String URL = "jdbc:mysql://localhost:3306/restaurantdb";
+    static final String USER = "root";
+    static final String PASS = "password";
+    public static void main(String[] args) {
+        launch(args);
+    }
+    @Override
+    public void start(Stage primaryStage) {
+        primaryStage.setTitle("Restaurant Management System");
+        // Menu Bar
+        MenuBar menuBar = new MenuBar();
+        Menu restaurantMenu = new Menu("Restaurant");
+        MenuItem insertRestaurant = new MenuItem("Insert");
+        MenuItem selectRestaurant = new MenuItem("Select All");
+        MenuItem updateRestaurant = new MenuItem("Update");
+        MenuItem deleteRestaurant = new MenuItem("Delete");
+        restaurantMenu.getItems().addAll(insertRestaurant,
+            selectRestaurant, updateRestaurant, deleteRestaurant);
+        Menu menuItemMenu = new Menu("Menu Item");
+        MenuItem insertItem = new MenuItem("Insert");
+        MenuItem selectItem = new MenuItem("Select All");
+        MenuItem updateItem = new MenuItem("Update");
+        MenuItem deleteItem = new MenuItem("Delete");
+        menuItemMenu.getItems().addAll(insertItem,
+            selectItem, updateItem, deleteItem);
+        menuBar.getMenus().addAll(restaurantMenu, menuItemMenu);
+        TextArea outputArea = new TextArea();
+        outputArea.setEditable(false);
+        outputArea.setPrefHeight(400);
+        // Restaurant Actions
+        insertRestaurant.setOnAction(e -> {
+            TextInputDialog d1 = new TextInputDialog();
+            d1.setHeaderText("Enter Restaurant ID:");
+            String id = d1.showAndWait().orElse("");
+            TextInputDialog d2 = new TextInputDialog();
+            d2.setHeaderText("Enter Restaurant Name:");
+            String name = d2.showAndWait().orElse("");
+            TextInputDialog d3 = new TextInputDialog();
+            d3.setHeaderText("Enter Location:");
+            String loc = d3.showAndWait().orElse("");
+            try (Connection con = DriverManager.getConnection(URL, USER, PASS)) {
+                String sql = "INSERT INTO Restaurant VALUES (?, ?, ?)";
+                PreparedStatement ps = con.prepareStatement(sql);
+                ps.setInt(1, Integer.parseInt(id));
+                ps.setString(2, name);
+                ps.setString(3, loc);
+                ps.executeUpdate();
+                outputArea.appendText("Restaurant inserted successfully.\n");
+            } catch (Exception ex) {
+                outputArea.appendText("Error: " + ex.getMessage() + "\n");
+            }
+        });
+        selectRestaurant.setOnAction(e -> {
+            try (Connection con = DriverManager.getConnection(URL, USER, PASS)) {
+                Statement st = con.createStatement();
+                ResultSet rs = st.executeQuery("SELECT * FROM Restaurant");
+                outputArea.appendText("\n--- Restaurant Table ---\n");
+                while (rs.next()) {
+                    outputArea.appendText(rs.getInt(1) + " | "
+                        + rs.getString(2) + " | " + rs.getString(3) + "\n");
+                }
+            } catch (Exception ex) {
+                outputArea.appendText("Error: " + ex.getMessage() + "\n");
+            }
+        });
+        updateRestaurant.setOnAction(e -> {
+            TextInputDialog d1 = new TextInputDialog();
+            d1.setHeaderText("Enter Restaurant ID to update:");
+            String id = d1.showAndWait().orElse("");
+            TextInputDialog d2 = new TextInputDialog();
+            d2.setHeaderText("Enter new Name:");
+            String name = d2.showAndWait().orElse("");
+            try (Connection con = DriverManager.getConnection(URL, USER, PASS)) {
+                String sql = "UPDATE Restaurant SET name=? WHERE restaurant_id=?";
+                PreparedStatement ps = con.prepareStatement(sql);
+                ps.setString(1, name);
+                ps.setInt(2, Integer.parseInt(id));
+                int rows = ps.executeUpdate();
+                outputArea.appendText(rows + " row(s) updated.\n");
+            } catch (Exception ex) {
+                outputArea.appendText("Error: " + ex.getMessage() + "\n");
+            }
+        });
+        deleteRestaurant.setOnAction(e -> {
+            TextInputDialog d1 = new TextInputDialog();
+            d1.setHeaderText("Enter Restaurant ID to delete:");
+            String id = d1.showAndWait().orElse("");
+            try (Connection con = DriverManager.getConnection(URL, USER, PASS)) {
+                String sql = "DELETE FROM Restaurant WHERE restaurant_id=?";
+                PreparedStatement ps = con.prepareStatement(sql);
+                ps.setInt(1, Integer.parseInt(id));
+                int rows = ps.executeUpdate();
+                outputArea.appendText(rows + " row(s) deleted.\n");
+            } catch (Exception ex) {
+                outputArea.appendText("Error: " + ex.getMessage() + "\n");
+            }
+        });
+        // MenuItem Actions
+        insertItem.setOnAction(e -> {
+            TextInputDialog d1 = new TextInputDialog();
+            d1.setHeaderText("Enter Menu Item ID:");
+            String id = d1.showAndWait().orElse("");
+            TextInputDialog d2 = new TextInputDialog();
+            d2.setHeaderText("Enter Item Name:");
+            String name = d2.showAndWait().orElse("");
+            TextInputDialog d3 = new TextInputDialog();
+            d3.setHeaderText("Enter Price:");
+            String price = d3.showAndWait().orElse("");
+            TextInputDialog d4 = new TextInputDialog();
+            d4.setHeaderText("Enter Restaurant ID:");
+            String rid = d4.showAndWait().orElse("");
+            try (Connection con = DriverManager.getConnection(URL, USER, PASS)) {
+                String sql = "INSERT INTO MenuItem VALUES (?, ?, ?, ?)";
+                PreparedStatement ps = con.prepareStatement(sql);
+                ps.setInt(1, Integer.parseInt(id));
+                ps.setString(2, name);
+                ps.setDouble(3, Double.parseDouble(price));
+                ps.setInt(4, Integer.parseInt(rid));
+                ps.executeUpdate();
+                outputArea.appendText("Menu Item inserted successfully.\n");
+            } catch (Exception ex) {
+                outputArea.appendText("Error: " + ex.getMessage() + "\n");
+            }
+        });
+        selectItem.setOnAction(e -> {
+            try (Connection con = DriverManager.getConnection(URL, USER, PASS)) {
+                Statement st = con.createStatement();
+                ResultSet rs = st.executeQuery("SELECT * FROM MenuItem");
+                outputArea.appendText("\n--- MenuItem Table ---\n");
+                while (rs.next()) {
+                    outputArea.appendText(rs.getInt(1) + " | "
+                        + rs.getString(2) + " | "
+                        + rs.getDouble(3) + " | "
+                        + rs.getInt(4) + "\n");
+                }
+            } catch (Exception ex) {
+                outputArea.appendText("Error: " + ex.getMessage() + "\n");
+            }
+        });
+        updateItem.setOnAction(e -> {
+            TextInputDialog d1 = new TextInputDialog();
+            d1.setHeaderText("Enter Menu Item ID to update:");
+            String id = d1.showAndWait().orElse("");
+            TextInputDialog d2 = new TextInputDialog();
+            d2.setHeaderText("Enter new Price:");
+            String price = d2.showAndWait().orElse("");
+            try (Connection con = DriverManager.getConnection(URL, USER, PASS)) {
+                String sql = "UPDATE MenuItem SET price=? WHERE item_id=?";
+                PreparedStatement ps = con.prepareStatement(sql);
+                ps.setDouble(1, Double.parseDouble(price));
+                ps.setInt(2, Integer.parseInt(id));
+                int rows = ps.executeUpdate();
+                outputArea.appendText(rows + " row(s) updated.\n");
+            } catch (Exception ex) {
+                outputArea.appendText("Error: " + ex.getMessage() + "\n");
+            }
+        });
+        deleteItem.setOnAction(e -> {
+            TextInputDialog d1 = new TextInputDialog();
+            d1.setHeaderText("Enter Menu Item ID to delete:");
+            String id = d1.showAndWait().orElse("");
+            try (Connection con = DriverManager.getConnection(URL, USER, PASS)) {
+                String sql = "DELETE FROM MenuItem WHERE item_id=?";
+                PreparedStatement ps = con.prepareStatement(sql);
+                ps.setInt(1, Integer.parseInt(id));
+                int rows = ps.executeUpdate();
+                outputArea.appendText(rows + " row(s) deleted.\n");
+            } catch (Exception ex) {
+                outputArea.appendText("Error: " + ex.getMessage() + "\n");
+            }
+        });
+        VBox root = new VBox(menuBar, outputArea);
+        root.setSpacing(10);
+        root.setPadding(new Insets(10));
+        primaryStage.setScene(new Scene(root, 700, 500));
+        primaryStage.show();
+    }
+}
