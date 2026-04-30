@@ -1,0 +1,81 @@
+// Product Interface
+interface Product {
+    void displayDetails();
+}
+// LegacyItem Class
+class LegacyItem {
+    private int itemId;
+    private String description;
+    public LegacyItem(int itemId, String description) {
+        this.itemId = itemId;
+        this.description = description;
+    }
+    public void print() {
+        System.out.println("Legacy Item ID: " + itemId + ", Description: " +
+description);
+    }
+}
+// Adapter Class
+class ProductAdapter implements Product {
+    private LegacyItem legacyItem;
+    public ProductAdapter(LegacyItem legacyItem) {
+        this.legacyItem = legacyItem;
+    }
+    @Override
+    public void displayDetails() {
+        legacyItem.print();
+    }
+}
+// NewProduct Class
+class NewProduct implements Product {
+    private String name;
+    public NewProduct(String name) {
+        this.name = name;
+    }
+    @Override
+    public void displayDetails() {
+        System.out.println("New Product: " + name);
+    }
+}
+// Singleton InventoryManager Class
+class InventoryManager {
+    private static InventoryManager instance;
+    private List<Product> inventory;
+    private InventoryManager() {
+        inventory = new ArrayList<>();
+    }
+    public static InventoryManager getInstance() {
+        if (instance == null) {
+            instance = new InventoryManager();
+        }
+        return instance;
+    }
+    public void addProduct(Product product) {
+        inventory.add(product);
+    }
+    public Iterator<Product> returnInventory() {
+        return inventory.iterator();
+    }
+}
+// Main Class
+public class InventoryApp {
+    public static void main(String[] args) {
+        // Singleton instance
+        InventoryManager manager = InventoryManager.getInstance();
+        // Add NewProduct objects
+        manager.addProduct(new NewProduct("Laptop"));
+        manager.addProduct(new NewProduct("Smartphone"));
+        // Add LegacyItem objects via Adapter
+        LegacyItem item1 = new LegacyItem(301, "Old CRT Monitor");
+        LegacyItem item2 = new LegacyItem(302, "Vintage Keyboard");
+        manager.addProduct(new ProductAdapter(item1));
+        manager.addProduct(new ProductAdapter(item2));
+        // Iterate using Iterator pattern
+        System.out.println("\n--- Inventory Details ---");
+        Iterator<Product> iterator = manager.returnInventory();
+        while (iterator.hasNext()) {
+            Product p = iterator.next();
+            p.displayDetails();
+        }
+    }
+} 
